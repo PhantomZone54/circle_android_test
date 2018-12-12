@@ -8,50 +8,53 @@ jobs:
       - run:
           name: Initial Checkups
           command: |
-            echo "Early Disc Space is" && df -hlT
-            echo "Free RAM Memory now?" && free -h
-            echo "CPU Details?" && lscpu
-            echo "System Info?" && uname -a
-            echo "whoami?" && whoami
+            echo ">>> Early Disc Space is" && df -hlT
+            echo ">>> Free RAM Memory now?" && free -h
+            echo ">>> CPU Details?" && lscpu
+            echo ">>> System Info?" && uname -a
+            echo ">>> whoami?" && whoami
       - run:
           name: Setup the Environment by Akhilnarang's Scripts
           command: |
             # while sleep 180; do df -hlT; done & ./script.sh
-            mkdir -p ~/zandroid/lineage && cd ~/zandroid
+            mkdir ~/Landroid && cd ~/Landroid
             mkdir toolz && cd toolz
             git clone https://github.com/akhilnarang/scripts
             cd scripts && bash setup/android_build_env.sh
             cd ../../ && rm -rf toolz
             sudo apt-get install -y wput
-            echo "Initial Disc Space is" && df -hlT
-          no_output_timeout: 20m
+            echo ">>> Initial Disc Space is" && df -hlT
+          no_output_timeout: 5m
       - run:
           name: Get the Android Source Code
           command: |
-            mkdir -p ~/zandroid/lineage && cd ~/zandroid/lineage
+            cd ~/Landroid
             # Github Authorization
             git config --global user.email $GitHubMail
             git config --global user.name $GitHubName
             git config --global color.ui true
             # Initialize the repo data fetching
-            repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
+            repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1
             # Sync it up!
-            time repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j32
-          no_output_timeout: 30m
+            repo sync -c -f --force-sync -j18
+            # How much space is taken?
+            echo ">>> How much space taken by .repo?" && du -sh .repo/
+            echo ">>> Primary Disc Space is now --- " && df -hlT
+          no_output_timeout: 20m
       - save_cache:
-          key: app-repo-{{ .CheckoutKey }}
+          key: app-repo-{{ .Revision }}
           paths: ~/zandroid/lineage/.repo
       - restore_cache:
-          key: app-repo-{{ .CheckoutKey }}
+          key: app-repo-{{ .Revision }}
       - run:
           command: |
-            cd ~/zandroid/lineage
-            time repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j32
+            cd ~/Landroid
+            repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j32
           no_output_timeout: 10m
       - run:
           name: Clone Device Sources and Patching it
           command: |
-            cd ~/zandroid/lineage
+            cd ~/Landroid
             git clone https://github.com/svoboda18/android_device_x5 device/doogee/x5
             git clone https://github.com/svoboda18/android_vendor_x5 vendor/doogee/x5
             cd device/doogee/x5/patches
@@ -69,15 +72,18 @@ jobs:
       - run:
           name: Build the LineageOS
           command: |
-            cd ~/zandroid/lineage
+            cd ~/Landroid
+            echo "Environment Setup"
             . build/envsetup.sh
+            echo "Lunching --- "
             lunch lineage_x5-userdebug
+            echo "Brunching, Umm.. --- "
             brunch lineage_x5-userdebug
           no_output_timeout: 50m
       - run:
           name: Upload Resulting Files
           command: |
-            cd ~/zandroid/lineage
+            cd ~/Landroid
             cd out/target/product/x5/
             # list all the files
             ls -la */
