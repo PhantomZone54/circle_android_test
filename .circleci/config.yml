@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/android #:api-25-ndk-r17b
+      - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
       - run:
