@@ -33,23 +33,23 @@ jobs:
             git config --global user.email $GitHubMail
             git config --global user.name $GitHubName
             git config --global color.ui true
-            # Initialize the repo data fetching
-            repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
-            # Sync it up!
-            repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j18
-            # How much space is taken?
-            echo ">>> How much space taken by .repo?" && du -sh .repo/
-            echo ">>> Primary Disc Space is now --- " && df -hlT
+            # # Initialize the repo data fetching
+            # repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
+            # # Sync it up!
+            # repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
+            # # How much space is taken?
+            # echo ">>> How much space taken by .repo?" && du -sh .repo/
+            # echo ">>> Primary Disc Space is now --- " && df -hlT
           no_output_timeout: 20m
-      - save_cache:
-          key: app-repo-{{ .Revision }}
-          paths: ~/zandroid/lineage/.repo/
+      # - save_cache:
+          # key: app-repo-{{ .Revision }}
+          # paths: ~/zandroid/lineage/.repo/
       - restore_cache:
           key: app-repo-{{ .Revision }}
       - run:
           command: |
             cd ~/Landroid
-            repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j18
+            repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
           no_output_timeout: 10m
       - run:
           name: Clone Device Sources and Patching it
@@ -60,7 +60,7 @@ jobs:
             cd device/doogee/x5/patches
             # Try patching OMS
             cd oms
-            y | bash do.sh
+            echo "y" | bash do.sh
             cd ..
             bash do.sh
           no_output_timeout: 2m
