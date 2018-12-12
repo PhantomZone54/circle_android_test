@@ -34,16 +34,16 @@ jobs:
             git config --global user.name $GitHubName
             git config --global color.ui true
             # Initialize the repo data fetching
-            repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1
+            repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
             # Sync it up!
-            repo sync -c -f --force-sync -j18
+            repo sync -c -f --force-sync --no-clone-bundle --no-tags -j18
             # How much space is taken?
             echo ">>> How much space taken by .repo?" && du -sh .repo/
             echo ">>> Primary Disc Space is now --- " && df -hlT
           no_output_timeout: 20m
       - save_cache:
           key: app-repo-{{ .Revision }}
-          paths: ~/zandroid/lineage/.repo
+          paths: ~/zandroid/lineage/.repo/
       - restore_cache:
           key: app-repo-{{ .Revision }}
       - run:
@@ -58,15 +58,18 @@ jobs:
             git clone https://github.com/svoboda18/android_device_x5 device/doogee/x5
             git clone https://github.com/svoboda18/android_vendor_x5 vendor/doogee/x5
             cd device/doogee/x5/patches
-            # cd oms
-            # y | bash do.sh
-            # cd ..
+            # Try patching OMS
+            cd oms
+            y | bash do.sh
+            cd ..
             bash do.sh
+          no_output_timeout: 2m
       - run:
           name: Set 50 Gigs of CCache
           command: |
             echo "export USE_CCACHE=1" >> ~/.bashrc
             echo "export CCACHE_COMPRESS=1" >> ~/.bashrc
+            echo "export ANDROID_JACK_VM_ARGS='-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx8G'" >> ~/.bashrc
             . ~/.bashrc
             ccache -M 50G
       - run:
@@ -77,6 +80,7 @@ jobs:
             . build/envsetup.sh
             echo "Lunching --- "
             lunch lineage_x5-userdebug
+            sleep 2
             echo "Brunching, Umm.. --- "
             brunch lineage_x5-userdebug
           no_output_timeout: 50m
