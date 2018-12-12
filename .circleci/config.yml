@@ -34,9 +34,9 @@ jobs:
             git config --global user.name $GitHubName
             git config --global color.ui true
             # Initialize the repo data fetching
-            repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
+            sudo repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
             # Sync it up!
-            repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
+            sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             # How much space is taken?
             echo ">>> How much space taken by .repo?" && du -sh .repo/
             echo ">>> Primary Disc Space is now --- " && df -hlT
