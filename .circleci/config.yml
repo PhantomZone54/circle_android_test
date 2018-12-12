@@ -48,11 +48,6 @@ jobs:
             git clone https://github.com/svoboda18/android_device_x5 device/doogee/x5
             git clone https://github.com/svoboda18/android_vendor_x5 vendor/doogee/x5
             cd device/doogee/x5/patches
-            # Try patching OMS
-            cd oms
-            echo "y" | bash do.sh
-            cd ..
-            bash do.sh
           no_output_timeout: 2m
       - run:
           name: Set 50 Gigs of CCache
