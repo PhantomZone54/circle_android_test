@@ -35,8 +35,16 @@ jobs:
             git config --global color.ui true
             # Initialize the repo data fetching
             repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
+            # Add device sources in local_manifest
+            wget -q 'https://gist.githubusercontent.com/rokibhasansagar/c65b9b7f9564bd9d70084c68719b292a/raw/18fff97243a7e4b7de476e47cc569c10ad8d1279/doogee_x5-local_manifest.xml' -O .repo/local_manifest.xml
             # Sync it up!
-            repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
+            sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
+            # Own the files
+            sudo chown -R $USER ~/Landroid/*
+            # Patch
+            cd device/doogee/x5/patches
+            bash do.sh
+            cd ~/Landroid
             # How much space is taken?
             echo ">>> How much space taken by .repo?" && du -sh .repo/
             # Clear the unneeded Repo
@@ -45,22 +53,14 @@ jobs:
             echo ">>> Primary Disc Space is now --- " && df -hlT
           no_output_timeout: 20m
       - run:
-          name: Clone Device Sources and Patching it
-          command: |
-            cd ~/Landroid
-            git clone https://github.com/svoboda18/android_device_x5 -b n device/doogee/x5
-            git clone https://github.com/svoboda18/android_vendor_x5 -b n vendor/doogee/x5
-            cd device/doogee/x5/patches
-            bash do.sh
-          no_output_timeout: 2m
-      - run:
           name: Set 50 Gigs of CCache
           command: |
             echo "export USE_CCACHE=1" >> ~/.bashrc
             echo "export CCACHE_COMPRESS=1" >> ~/.bashrc
-            echo "export ANDROID_JACK_VM_ARGS='-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx6G'" >> ~/.bashrc
+            echo "export ANDROID_JACK_VM_ARGS='-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G'" >> ~/.bashrc
             . ~/.bashrc
             ccache -M 50G
+            ccache -C
       - run:
           name: Build the LineageOS
           command: |
