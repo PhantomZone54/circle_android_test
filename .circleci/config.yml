@@ -26,31 +26,42 @@ jobs:
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 5m
       - run:
-          name: Get the Android Source Code
+          name: Git Config only
           command: |
             cd ~/Landroid
             # Github Authorization
             git config --global user.email $GitHubMail
             git config --global user.name $GitHubName
             git config --global color.ui true
-            # Initialize the repo data fetching
-            repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
+            # >># Initialize the repo data fetching
+            # >>repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
+            # >># Sync it up!
+            # >>sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
+            # >># How much space is taken?
+            # >>echo ">>> How much space taken by .repo?" && du -sh .repo/
+            # >>echo ">>> Primary Disc Space is now --- " && df -hlT
+          # >>no_output_timeout: 20m
+      # >> - save_cache:
+          # >> key: repo-lineage-2018-12-12T11
+          # >> paths: ~/zandroid/lineage/.repo/
+      - restore_cache:
+          key: repo-lineage-2018-12-12T11
+      - run:
+          name: Repo sync from Cache
+          command: |
+            cd ~/Landroid
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             # How much space is taken?
             echo ">>> How much space taken by .repo?" && du -sh .repo/
             echo ">>> Primary Disc Space is now --- " && df -hlT
-          no_output_timeout: 20m
-      - save_cache:
-          key: repo-lineage-2018-12-12T11
-          paths: ~/zandroid/lineage/.repo/
+          no_output_timeout: 10m
       - run:
           name: Clone Device Sources and Patching it
           command: |
             cd ~/Landroid
-            sudo mkdir -p {device,vendor}/doogee/x5
-            git clone https://github.com/svoboda18/android_device_x5 -b n device/doogee/x5
-            git clone https://github.com/svoboda18/android_vendor_x5 -b n vendor/doogee/x5
+            sudo git clone https://github.com/svoboda18/android_device_x5 -b n device/doogee/x5
+            sudo git clone https://github.com/svoboda18/android_vendor_x5 -b n vendor/doogee/x5
             cd device/doogee/x5/patches
             bash do.sh
           no_output_timeout: 2m
