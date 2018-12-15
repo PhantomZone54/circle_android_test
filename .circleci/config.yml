@@ -36,11 +36,14 @@ jobs:
             # Initialize the repo data fetching
             repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
             # Add device sources in local_manifest
-            wget -q 'https://gist.githubusercontent.com/rokibhasansagar/c65b9b7f9564bd9d70084c68719b292a/raw/18fff97243a7e4b7de476e47cc569c10ad8d1279/doogee_x5-local_manifest.xml' -O .repo/local_manifest.xml
+            wget -q 'https://gist.githubusercontent.com/rokibhasansagar/c65b9b7f9564bd9d70084c68719b292a/raw/18fff97243a7e4b7de476e47cc569c10ad8d1279/doogee_x5-local_manifest.xml' -O .repo/local_manifests/doogee_x5.xml
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             # Own the files
             sudo chown -R $USER ~/Landroid/*
+            # ls -la
+            ls -la *
+            ls -la device/
             # Patch
             cd device/doogee/x5/patches
             bash do.sh
