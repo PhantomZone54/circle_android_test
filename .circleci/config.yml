@@ -39,11 +39,11 @@ jobs:
             wget 'https://gist.githubusercontent.com/rokibhasansagar/c65b9b7f9564bd9d70084c68719b292a/raw/18fff97243a7e4b7de476e47cc569c10ad8d1279/doogee_x5-local_manifest.xml' -P .repo/local_manifests
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
-            # Own the files
-            sudo chown -R $USER ~/Landroid/*
             # ls -la
             ls -la *
             ls -la device/
+            # Own the files
+            sudo chown -R cicleci ~/Landroid/*
             # Patch
             cd device/doogee/x5/patches
             bash do.sh
