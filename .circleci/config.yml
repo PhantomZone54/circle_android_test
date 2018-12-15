@@ -51,6 +51,7 @@ jobs:
           command: |
             cd ~/Landroid
             # Sync it up!
+            repo init
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             # How much space is taken?
             echo ">>> How much space taken by .repo?" && du -sh .repo/
