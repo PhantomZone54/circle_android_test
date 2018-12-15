@@ -40,10 +40,9 @@ jobs:
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             # ls -la
-            ls -la *
-            ls -la device/
+            ls -la device/doogee/x5/
             # Own the files
-            sudo chown -R cicleci ~/Landroid/*
+            sudo chown -R circleci ~/Landroid/*
             # Patch
             cd device/doogee/x5/patches
             bash do.sh
