@@ -18,7 +18,8 @@ jobs:
           no_output_timeout: 5m
       - persist_to_workspace:
         root: ~/Landroid
-        paths: /
+        paths:
+          - ./
   build:
     docker:
       - image: circleci/android:api-25-ndk-r17b
