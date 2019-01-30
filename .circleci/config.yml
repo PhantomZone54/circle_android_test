@@ -10,6 +10,8 @@ jobs:
           command: |
             mkdir ~/Landroid
             ls -la ..
+            ls -la /home/*
+            ls -la /home/$USER/*
             echo "Trying out workspaces" > ~/Landroid/workspace_echo
       - persist_to_workspace:
           root: /
@@ -18,7 +20,6 @@ jobs:
       - run:
           name: Setup the Environment using Scripts by Akhilnarang
           command: |
-            ls -la .
             mkdir toolz && cd toolz
             git clone https://github.com/akhilnarang/scripts
             cd scripts && bash setup/android_build_env.sh
@@ -38,6 +39,7 @@ jobs:
       - attach_workspace:
           at: ~/Landroid
       - run: |
+          ls -la ./*
           if [[ $(cat ~/Landroid/workspace_echo) == "Trying out workspaces" ]]; then
             echo "It worked!";
           else
@@ -62,7 +64,7 @@ jobs:
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             # Own the files
-            sudo chown -R $USER ~/Landroid/*
+            sudo chown -R circleci ~/Landroid/*
             # Patch
             cd device/doogee/x5/patches
             bash do.sh
