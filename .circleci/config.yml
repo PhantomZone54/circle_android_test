@@ -8,17 +8,16 @@ jobs:
       - run:
           name: Setup the Environment using Scripts by Akhilnarang
           command: |
-            mkdir /home/circleci/project/Landroid
-            cd /home/circleci/project/Landroid
+            mkdir /home/circleci/project/Landroid && cd /home/circleci/project/Landroid
             mkdir toolz && cd toolz
             git clone https://github.com/akhilnarang/scripts
             cd scripts
-            bash setup/android_build_env.sh
-            cd setup && bash install_android_sdk.bash && cd ..
+            bash setup/android_build_env.sh > /dev/null
+            . setup/install_android_sdk.bash
             cd ../../ && rm -rf toolz
             sudo apt install whiptail wput -qqy
             echo ">>> Initial Disc Space is" && df -hlT
-          no_output_timeout: 3m
+          no_output_timeout: 5m
       - run:
           name: Git Config and Get LineageOS
           command: |
@@ -44,34 +43,28 @@ jobs:
             echo ">>> How much space taken by checked-out files?" && du -sh /home/circleci/project/Landroid
             echo ">>> Primary Disc Space is now --- " && df -hlT
             ls -la .
-          no_output_timeout: 5m
+          no_output_timeout: 3m
       - run:
-          name: Set 40 Gigs of CCache
+          name: Set 30 Gigs of CCache
           command: |
             cd /home/circleci/project/Landroid
             export 'USE_CCACHE=1' >> ~/.bashrc
             export 'CCACHE_COMPRESS=1' >> ~/.bashrc
-            whereis ccache
-            export PATH="/usr/local/bin/ccache:$PATH"
-            export JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx3g"
-            export ANDROID_JACK_VM_ARGS=$JACK_SERVER_VM_ARGUMENTS
-            ./prebuilts/sdk/tools/jack-admin kill-server || echo "jack server not running"
-            ./prebuilts/sdk/tools/jack-admin start-server || echo "jack server not starting"
             . ~/.bashrc
-            ccache -M 40G
-            ccache -C
+            /usr/local/bin/ccache -M 30G
+            /usr/local/bin/ccache -C
       - run:
           name: Build the LineageOS
           command: |
             cd /home/circleci/project/Landroid
             echo "Environment Setup"
-            . build/envsetup.sh
+            . build/envsetup.sh > /dev/null
             echo "Lunching --- "
             lunch lineage_x5-userdebug
             sleep 2
             echo "Brunching, Umm.. --- "
             brunch lineage_x5-userdebug
-          no_output_timeout: 50m
+          no_output_timeout: 15m
       - run:
           name: Upload Resulting Files
           command: |
@@ -81,4 +74,4 @@ jobs:
             ls -la */
             # upload
             for file in *; do wput $file ftp://"$FTPUser":"$FTPPass"@"$FTPHost"//TestLAndroid/Doogee_X5/ ; done
-          no_output_timeout: 10m
+          no_output_timeout: 5m
