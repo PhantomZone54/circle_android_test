@@ -5,17 +5,14 @@ jobs:
       - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
+      - run: pwd
       - run:
           name: Workspace TryOuts
           command: |
-            mkdir ~/Landroid
+            mkdir /home/Landroid
             echo "ls -la /home/circleci/*"
             ls -la /home/circleci/*
             echo "Trying out workspaces" > ~/Landroid/workspace_echo
-      - persist_to_workspace:
-          root: /
-          paths:
-            - home/circleci/Landroid
       - run:
           name: Setup the Environment using Scripts by Akhilnarang
           command: |
@@ -25,13 +22,18 @@ jobs:
             cd ../../ && rm -rf toolz
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 3m
+      - persist_to_workspace:
+          root: .
+          #paths:
+          #  - ~/Landroid
   build:
     docker:
       - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
+      - run: sleep 60
       - attach_workspace:
-          at: ~/Landroid
+          at: .
       - run: |
           ls -la ../
           if [[ $(cat ~/Landroid/workspace_echo) == "Trying out workspaces" ]]; then
@@ -42,7 +44,7 @@ jobs:
       - run:
           name: Git Config and Get LineageOS
           command: |
-            cd ~/Landroid
+            cd /home/Landroid
             # Github Authorization
             git config --global user.email $GitHubMail
             git config --global user.name $GitHubName
@@ -58,11 +60,11 @@ jobs:
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             # Own the files
-            sudo chown -R circleci ~/Landroid/*
+            sudo chown -R circleci /home/Landroid/*
             # Patch
             cd device/doogee/x5/patches
             bash do.sh
-            cd ~/Landroid
+            cd /home/Landroid
             # How much space is taken?
             echo ">>> How much space taken by .repo?" && du -sh .repo/
             echo ">>> How much space taken by checked-out files?" && du -sh ~/Landroid
@@ -72,7 +74,7 @@ jobs:
       - run:
           name: Set 60 Gigs of CCache
           command: |
-            cd ~/Landroid
+            cd /home/Landroid
             sudo apt install whiptail wput -qqy
             echo "export USE_CCACHE=1" >> ~/.bashrc
             echo "export CCACHE_COMPRESS=1" >> ~/.bashrc
@@ -85,7 +87,7 @@ jobs:
       - run:
           name: Build the LineageOS
           command: |
-            cd ~/Landroid
+            cd /home/Landroid
             echo "Environment Setup"
             . build/envsetup.sh
             echo "Lunching --- "
@@ -97,7 +99,7 @@ jobs:
       - run:
           name: Upload Resulting Files
           command: |
-            cd ~/Landroid
+            cd /home/Landroid
             cd out/target/product/x5/
             # list all the files
             ls -la */
