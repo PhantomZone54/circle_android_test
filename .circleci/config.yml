@@ -1,30 +1,36 @@
 version: 2
 jobs:
-  build:
+  setup:
     docker:
       - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
-      # >>- run:
-          # >>name: Initial Checkups
-          # >>command: |
-            # >>echo ">>> Early Disc Space is" && df -hlT
-            # >>echo ">>> Free RAM Memory now?" && free -h
-            # >>echo ">>> CPU Details?" && lscpu
-            # >>echo ">>> System Info?" && uname -a
-            # >>echo ">>> whoami?" && whoami
       - run:
-          name: Setup the Environment by Akhilnarang's Scripts
+          name: Setup the Environment using Scripts by Akhilnarang
           command: |
-            # while sleep 180; do df -hlT; done & ./script.sh
             mkdir ~/Landroid && cd ~/Landroid
             mkdir toolz && cd toolz
             git clone https://github.com/akhilnarang/scripts
             cd scripts && bash setup/android_build_env.sh
             cd ../../ && rm -rf toolz
-            sudo apt-get install -qqy wput
             echo ">>> Initial Disc Space is" && df -hlT
+        - run: echo "Trying out workspaces" > ~/Landroid/workspace_echo
           no_output_timeout: 5m
+      - persist_to_workspace:
+        root: ~/Landroid
+  build:
+    docker:
+      - image: circleci/android:api-25-ndk-r17b
+    steps:
+      - checkout
+      - attach_workspace:
+        at: ~/Landroid
+      - run: |
+          if [[ $(cat ~/Landroid/workspace_echo) == "Trying out workspaces" ]]; then
+            echo "It worked!";
+          else
+            echo "Nope! Workspaces test Failed!";
+          fi
       - run:
           name: Git Config and Get LineageOS
           command: |
@@ -49,17 +55,17 @@ jobs:
             echo ">>> How much space taken by .repo?" && du -sh .repo/
             echo ">>> How much space taken by checked-out files?" && du -sh ~/Landroid
             echo ">>> Primary Disc Space is now --- " && df -hlT
-          no_output_timeout: 20m
+          no_output_timeout: 5m
       - run:
-          name: Set 50 Gigs of CCache
+          name: Set 60 Gigs of CCache
           command: |
             cd ~/Landroid
+            sudo apt install whiptail wput -qqy
             echo "export USE_CCACHE=1" >> ~/.bashrc
             echo "export CCACHE_COMPRESS=1" >> ~/.bashrc
-            wget -q https://raw.githubusercontent.com/mikecriggs/fuckjack/nougat/fuckjack.sh
-            bash ./fuckjack.sh
-            # >>echo "export ANDROID_JACK_VM_ARGS='-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx8G'" >> ~/.bashrc
-            # >>echo "export USE_NINJA=false" >> ~/.bashrc
+            wget -q https://raw.githubusercontent.com/mikecriggs/fuckjack/nougat/auto-fuckjack.sh
+            chmod +x auto-fuckjack.sh
+            bash ./auto-fuckjack.sh
             . ~/.bashrc
             ccache -M 60G
             ccache -C
@@ -85,6 +91,10 @@ jobs:
             # upload
             for file in *; do wput $file ftp://"$FTPUser":"$FTPPass"@"$FTPHost"//TestLAndroid/Doogee_X5/ ; done
           no_output_timeout: 10m
-    branches:
-      only:
-        - master
+    
+workflows:
+  version: 2
+  setup_and_build:
+    jobs:
+      - setup
+      - build
