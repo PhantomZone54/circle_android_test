@@ -13,8 +13,29 @@ jobs:
             git clone https://github.com/akhilnarang/scripts
             cd scripts
             bash setup/android_build_env.sh > /dev/null
-            . setup/install_android_sdk.bash
             cd ../../ && rm -rf toolz
+            # Script to setup the Android SDK on a Linux System
+            TOOLS_URL="https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip"
+            ZIP_NAME=$(printf '%s\n' "${TOOLS_URL##*/}")
+            mkdir -p ~/Android/Sdk/; cd ~/Android/Sdk || exit 1
+            if axel -a -n 10 "${TOOLS_URL}"; then
+                unzip -qqo "${ZIP_NAME}"
+            else
+                exit 1
+            fi
+            # Create repositories.cfg if not present
+            if [ ! -f ~/.android/repositories.cfg ] ; then
+                touch ~/.android/repositories.cfg
+            fi
+            rm "${ZIP_NAME}"
+            printf '\nexport ANDROID_HOME=~/Android/Sdk' >> ~/.bashrc
+            source ~/.bashrc
+            yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses || not done license accept
+            y | "${ANDROID_HOME}"/tools/bin/sdkmanager --update > /dev/null
+            y | "${ANDROID_HOME}"/tools/bin/sdkmanager build-tools;27.0.3
+            y | "${ANDROID_HOME}"/tools/bin/sdkmanager platform-tools
+            y | "${ANDROID_HOME}"/tools/bin/sdkmanager tools
+            y | "${ANDROID_HOME}"/tools/bin/sdkmanager platforms;android-25
             sudo apt install whiptail wput -qqy
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 5m
