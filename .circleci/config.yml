@@ -9,14 +9,14 @@ jobs:
           name: Workspace TryOuts
           command: |
             mkdir ~/Landroid
-            ls -la ..
             ls -la /home/*
-            ls -la /home/$USER/*
+            echo "ls -la /home/circleci/*"
+            ls -la /home/circleci/*
             echo "Trying out workspaces" > ~/Landroid/workspace_echo
       - persist_to_workspace:
           root: /
           paths:
-            - home/$USER/Landroid
+            - home/circleci/Landroid
       - run:
           name: Setup the Environment using Scripts by Akhilnarang
           command: |
@@ -27,10 +27,6 @@ jobs:
             echo ">>> Initial Disc Space is" && df -hlT
             ls -la /*
           no_output_timeout: 5m
-      - persist_to_workspace:
-          root: /
-          paths:
-            - home/$USER/Landroid
   build:
     docker:
       - image: circleci/android:api-25-ndk-r17b
