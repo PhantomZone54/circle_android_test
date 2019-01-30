@@ -49,11 +49,11 @@ jobs:
           name: Set 40 Gigs of CCache
           command: |
             cd /home/circleci/project/Landroid
-            ./prebuilts/sdk/tools/jack-admin kill-server
-            export ANDROID_JACK_VM_ARGS="-Xmx3g -XX:+TieredCompilation -Dfile.encoding=UTF-8"
-            export SERVER_NB_COMPILE=2
-            export ANDROID_JACK_VM_ARGS=$JACK_SERVER_VM_ARGUMENT
-            ./prebuilts/sdk/tools/jack-admin start-server
+          # ./prebuilts/sdk/tools/jack-admin kill-server
+          # export ANDROID_JACK_VM_ARGS="-Xmx3g -XX:+TieredCompilation -Dfile.encoding=UTF-8"
+          # export SERVER_NB_COMPILE=2
+          # export ANDROID_JACK_VM_ARGS=$JACK_SERVER_VM_ARGUMENT
+          # ./prebuilts/sdk/tools/jack-admin start-server
             echo "export USE_CCACHE=1" >> ~/.bashrc
             echo "export CCACHE_COMPRESS=1" >> ~/.bashrc
             whereis ccache
