@@ -5,6 +5,7 @@ jobs:
       - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
+      - run: echo "Trying out workspaces" > ~/Landroid/workspace_echo
       - run:
           name: Setup the Environment using Scripts by Akhilnarang
           command: |
@@ -15,9 +16,9 @@ jobs:
             cd ../../ && rm -rf toolz
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 5m
-      - run: echo "Trying out workspaces" > ~/Landroid/workspace_echo
       - persist_to_workspace:
         root: ~/Landroid
+        paths: /
   build:
     docker:
       - image: circleci/android:api-25-ndk-r17b
