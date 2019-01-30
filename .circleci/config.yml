@@ -9,7 +9,6 @@ jobs:
           name: Workspace TryOuts
           command: |
             mkdir ~/Landroid
-            ls -la /home/*
             echo "ls -la /home/circleci/*"
             ls -la /home/circleci/*
             echo "Trying out workspaces" > ~/Landroid/workspace_echo
@@ -25,8 +24,7 @@ jobs:
             cd scripts && bash setup/android_build_env.sh
             cd ../../ && rm -rf toolz
             echo ">>> Initial Disc Space is" && df -hlT
-            ls -la /*
-          no_output_timeout: 5m
+          no_output_timeout: 3m
   build:
     docker:
       - image: circleci/android:api-25-ndk-r17b
@@ -35,7 +33,7 @@ jobs:
       - attach_workspace:
           at: ~/Landroid
       - run: |
-          ls -la ./*
+          ls -la ../
           if [[ $(cat ~/Landroid/workspace_echo) == "Trying out workspaces" ]]; then
             echo "It worked!";
           else
