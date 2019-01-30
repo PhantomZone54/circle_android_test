@@ -6,30 +6,37 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Setup the Environment using Scripts by Akhilnarang
+          name: Workspace TryOuts
           command: |
             mkdir ~/Landroid
             ls -la ..
             echo "Trying out workspaces" > ~/Landroid/workspace_echo
-            cd ~/Landroid
+      - persist_to_workspace:
+          root: /
+          paths:
+            - home/$USER/Landroid
+      - run:
+          name: Setup the Environment using Scripts by Akhilnarang
+          command: |
+            ls -la .
             mkdir toolz && cd toolz
             git clone https://github.com/akhilnarang/scripts
             cd scripts && bash setup/android_build_env.sh
             cd ../../ && rm -rf toolz
             echo ">>> Initial Disc Space is" && df -hlT
-            ls -la /
+            ls -la /*
           no_output_timeout: 5m
       - persist_to_workspace:
           root: /
-          #paths:
-          #  - home/$USER/
+          paths:
+            - home/$USER/Landroid
   build:
     docker:
       - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
       - attach_workspace:
-          at: /
+          at: ~/Landroid
       - run: |
           if [[ $(cat ~/Landroid/workspace_echo) == "Trying out workspaces" ]]; then
             echo "It worked!";
@@ -55,7 +62,7 @@ jobs:
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             # Own the files
-            sudo chown -R circleci ~/Landroid/*
+            sudo chown -R $USER ~/Landroid/*
             # Patch
             cd device/doogee/x5/patches
             bash do.sh
