@@ -1,48 +1,24 @@
 version: 2
 jobs:
-  setup:
+  build:
     docker:
       - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
-      - run: pwd
-      - run:
-          name: Workspace TryOuts
-          command: |
-            mkdir /home/circleci/project/Landroid
-            echo "ls -la /home/circleci/project/*"
-            ls -la /home/circleci/project/*
-            echo "Trying out workspaces" > /home/circleci/project/Landroid/workspace_echo
       - run:
           name: Setup the Environment using Scripts by Akhilnarang
           command: |
+            mkdir /home/circleci/project/Landroid
+            cd /home/circleci/project/Landroid
             mkdir toolz && cd toolz
             git clone https://github.com/akhilnarang/scripts
             cd scripts
             bash setup/android_build_env.sh
             cd setup && bash install_android_sdk.bash && cd ..
             cd ../../ && rm -rf toolz
+            sudo apt install whiptail wput -qqy
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 3m
-      - persist_to_workspace:
-          root: .
-          #paths:
-          #  - ~/Landroid
-  build:
-    docker:
-      - image: circleci/android:api-25-ndk-r17b
-    steps:
-      - checkout
-      - run: sleep 130
-      - attach_workspace:
-          at: .
-      - run: |
-          ls -la ../
-          if [[ $(cat /home/circleci/project/Landroid/workspace_echo) == "Trying out workspaces" ]]; then
-            echo "It worked!";
-          else
-            echo "Nope! Workspaces test Failed!";
-          fi
       - run:
           name: Git Config and Get LineageOS
           command: |
@@ -51,10 +27,6 @@ jobs:
             git config --global user.email $GitHubMail
             git config --global user.name $GitHubName
             git config --global color.ui true
-            # Install the repo again (failsafe)
-            echo "Installing repo"
-            sudo curl --create-dirs -L -o /usr/local/bin/repo -O -L https://github.com/akhilnarang/repo/raw/master/repo
-            sudo chmod a+x /usr/local/bin/repo
             # Initialize the repo data fetching
             repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
             # Add device sources in local_manifest
@@ -66,7 +38,7 @@ jobs:
             # Patch
             cd device/doogee/x5/patches
             bash do.sh
-            cd /home/circleci/Landroid
+            cd /home/circleci/project/Landroid
             # How much space is taken?
             echo ">>> How much space taken by .repo?" && du -sh .repo/
             echo ">>> How much space taken by checked-out files?" && du -sh /home/circleci/project/Landroid
@@ -82,7 +54,6 @@ jobs:
             export SERVER_NB_COMPILE=2
             export ANDROID_JACK_VM_ARGS=$JACK_SERVER_VM_ARGUMENT
             ./prebuilts/sdk/tools/jack-admin start-server
-            sudo apt install whiptail wput -qqy
             echo "export USE_CCACHE=1" >> ~/.bashrc
             echo "export CCACHE_COMPRESS=1" >> ~/.bashrc
             . ~/.bashrc
@@ -110,10 +81,3 @@ jobs:
             # upload
             for file in *; do wput $file ftp://"$FTPUser":"$FTPPass"@"$FTPHost"//TestLAndroid/Doogee_X5/ ; done
           no_output_timeout: 10m
-    
-workflows:
-  version: 2
-  setup_and_build:
-    jobs:
-      - setup
-      - build
