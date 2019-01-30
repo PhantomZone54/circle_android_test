@@ -9,16 +9,18 @@ jobs:
       - run:
           name: Workspace TryOuts
           command: |
-            mkdir /home/Landroid
-            echo "ls -la /home/circleci/*"
-            ls -la /home/circleci/*
-            echo "Trying out workspaces" > ~/Landroid/workspace_echo
+            mkdir /home/circleci/project/Landroid
+            echo "ls -la /home/circleci/project/*"
+            ls -la /home/circleci/project/*
+            echo "Trying out workspaces" > /home/circleci/project/Landroid/workspace_echo
       - run:
           name: Setup the Environment using Scripts by Akhilnarang
           command: |
             mkdir toolz && cd toolz
             git clone https://github.com/akhilnarang/scripts
-            cd scripts && bash setup/android_build_env.sh
+            cd scripts
+            bash setup/android_build_env.sh
+            bash setup/install_android_sdk.bash
             cd ../../ && rm -rf toolz
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 3m
@@ -31,12 +33,12 @@ jobs:
       - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
-      - run: sleep 60
+      - run: sleep 90
       - attach_workspace:
           at: .
       - run: |
           ls -la ../
-          if [[ $(cat ~/Landroid/workspace_echo) == "Trying out workspaces" ]]; then
+          if [[ $(cat /home/circleci/project/Landroid/workspace_echo) == "Trying out workspaces" ]]; then
             echo "It worked!";
           else
             echo "Nope! Workspaces test Failed!";
@@ -44,7 +46,7 @@ jobs:
       - run:
           name: Git Config and Get LineageOS
           command: |
-            cd /home/Landroid
+            cd /home/circleci/project/Landroid
             # Github Authorization
             git config --global user.email $GitHubMail
             git config --global user.name $GitHubName
@@ -60,34 +62,36 @@ jobs:
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             # Own the files
-            sudo chown -R circleci /home/Landroid/*
+            sudo chown -R circleci /home/circleci/project/Landroid/*
             # Patch
             cd device/doogee/x5/patches
             bash do.sh
-            cd /home/Landroid
+            cd /home/circleci/Landroid
             # How much space is taken?
             echo ">>> How much space taken by .repo?" && du -sh .repo/
-            echo ">>> How much space taken by checked-out files?" && du -sh ~/Landroid
+            echo ">>> How much space taken by checked-out files?" && du -sh /home/circleci/project/Landroid
             echo ">>> Primary Disc Space is now --- " && df -hlT
             ls -la .
           no_output_timeout: 5m
       - run:
-          name: Set 60 Gigs of CCache
+          name: Set 40 Gigs of CCache
           command: |
-            cd /home/Landroid
+            cd /home/circleci/project/Landroid
+            ./prebuilts/sdk/tools/jack-admin kill-server
+            export ANDROID_JACK_VM_ARGS="-Xmx3g -XX:+TieredCompilation -Dfile.encoding=UTF-8"
+            export SERVER_NB_COMPILE=2
+            export ANDROID_JACK_VM_ARGS=$JACK_SERVER_VM_ARGUMENT
+            ./prebuilts/sdk/tools/jack-admin start-server
             sudo apt install whiptail wput -qqy
             echo "export USE_CCACHE=1" >> ~/.bashrc
             echo "export CCACHE_COMPRESS=1" >> ~/.bashrc
-            wget -q https://raw.githubusercontent.com/mikecriggs/fuckjack/nougat/auto-fuckjack.sh
-            chmod +x auto-fuckjack.sh
-            bash ./auto-fuckjack.sh
             . ~/.bashrc
-            ccache -M 60G
+            ccache -M 40G
             ccache -C
       - run:
           name: Build the LineageOS
           command: |
-            cd /home/Landroid
+            cd /home/circleci/project/Landroid
             echo "Environment Setup"
             . build/envsetup.sh
             echo "Lunching --- "
@@ -99,7 +103,7 @@ jobs:
       - run:
           name: Upload Resulting Files
           command: |
-            cd /home/Landroid
+            cd /home/circleci/project/Landroid
             cd out/target/product/x5/
             # list all the files
             ls -la */
