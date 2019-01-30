@@ -5,11 +5,12 @@ jobs:
       - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
-      - run: echo "Trying out workspaces" > ~/Landroid/workspace_echo
       - run:
           name: Setup the Environment using Scripts by Akhilnarang
           command: |
-            mkdir ~/Landroid && cd ~/Landroid
+            mkdir ~/Landroid
+            echo "Trying out workspaces" > ~/Landroid/workspace_echo
+            cd ~/Landroid
             mkdir toolz && cd toolz
             git clone https://github.com/akhilnarang/scripts
             cd scripts && bash setup/android_build_env.sh
@@ -17,16 +18,16 @@ jobs:
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 5m
       - persist_to_workspace:
-          root: ~/Landroid
+          root: /
           paths:
-            - ./
+            - home/$USER/
   build:
     docker:
       - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
       - attach_workspace:
-          at: ~/Landroid
+          at: /
       - run: |
           if [[ $(cat ~/Landroid/workspace_echo) == "Trying out workspaces" ]]; then
             echo "It worked!";
@@ -41,6 +42,10 @@ jobs:
             git config --global user.email $GitHubMail
             git config --global user.name $GitHubName
             git config --global color.ui true
+            # Install the repo again (failsafe)
+            echo "Installing repo"
+            sudo curl --create-dirs -L -o /usr/local/bin/repo -O -L https://github.com/akhilnarang/repo/raw/master/repo
+            sudo chmod a+x /usr/local/bin/repo
             # Initialize the repo data fetching
             repo init -q -u https://github.com/LineageOS/android.git -b cm-14.1 --depth 1
             # Add device sources in local_manifest
