@@ -17,16 +17,16 @@ jobs:
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 5m
       - persist_to_workspace:
-        root: ~/Landroid
-        paths:
-          - ./
+          root: ~/Landroid
+          paths:
+            - ./
   build:
     docker:
       - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
       - attach_workspace:
-        at: ~/Landroid
+          at: ~/Landroid
       - run: |
           if [[ $(cat ~/Landroid/workspace_echo) == "Trying out workspaces" ]]; then
             echo "It worked!";
