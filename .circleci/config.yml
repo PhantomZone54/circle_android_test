@@ -20,7 +20,7 @@ jobs:
             git clone https://github.com/akhilnarang/scripts
             cd scripts
             bash setup/android_build_env.sh
-            bash setup/install_android_sdk.bash
+            cd setup && bash install_android_sdk.bash && cd ..
             cd ../../ && rm -rf toolz
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 3m
@@ -33,7 +33,7 @@ jobs:
       - image: circleci/android:api-25-ndk-r17b
     steps:
       - checkout
-      - run: sleep 90
+      - run: sleep 130
       - attach_workspace:
           at: .
       - run: |
