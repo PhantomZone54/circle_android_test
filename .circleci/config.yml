@@ -32,7 +32,7 @@ jobs:
             rm "${ZIP_NAME}"
             printf '\nexport ANDROID_HOME=~/Android/Sdk' >> ~/.bashrc
             source ~/.bashrc
-            yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses || echo "not done license accept"
+            yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses
             y | "${ANDROID_HOME}"/tools/bin/sdkmanager --update > /dev/null
             y | "${ANDROID_HOME}"/tools/bin/sdkmanager build-tools;27.0.3
             y | "${ANDROID_HOME}"/tools/bin/sdkmanager platform-tools
