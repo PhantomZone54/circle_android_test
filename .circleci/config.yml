@@ -14,7 +14,6 @@ jobs:
             git clone https://github.com/akhilnarang/scripts
             cd scripts
             bash setup/android_build_env.sh
-            cd setup && bash install_android_sdk.bash && cd ..
             cd ../../ && rm -rf toolz
             sudo apt install whiptail wput -qqy
             # Script to setup the Android SDK on a Linux System
@@ -33,7 +32,7 @@ jobs:
             rm "${ZIP_NAME}"
             printf '\nexport ANDROID_HOME=~/Android/Sdk' >> ~/.bashrc
             source ~/.bashrc
-            yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses || not done license accept
+            yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses || echo "not done license accept"
             y | "${ANDROID_HOME}"/tools/bin/sdkmanager --update > /dev/null
             y | "${ANDROID_HOME}"/tools/bin/sdkmanager build-tools;27.0.3
             y | "${ANDROID_HOME}"/tools/bin/sdkmanager platform-tools
