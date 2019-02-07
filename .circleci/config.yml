@@ -56,15 +56,19 @@ jobs:
             # wget -q 'https://gist.githubusercontent.com/rokibhasansagar/c65b9b7f9564bd9d70084c68719b292a/raw/18fff97243a7e4b7de476e47cc569c10ad8d1279/doogee_x5-local_manifest.xml' -P .repo/local_manifests
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
+            # List directories
+            ls -la .
             # Device sources
             sudo chown -R circleci *
             sudo git clone https://github.com/SahilSonar/android_kernel_lenovo_k5fpr kernel/lenovo/k5fpr -b lineage-15.1-dev
             sudo git clone https://github.com/SahilSonar/android_device_lenovo_k5fpr device/lenovo/k5fpr -b oreo-mr1
             sudo git clone https://github.com/SahilSonar/android_vendor_lenovo_k5fpr vendor/lenovo/k5fpr -b lineage-15.1-dev
             # Own the files, again
-            sudo chown -R circleci *
+            sudo chown -R circleci kernel
+            sudo chown -R circleci device
+            sudo chown -R circleci vendor
             # Patch
-            cd device/lenovo/k5fpr/patches
+            ls -la device/lenovo/k5fpr/patches/
             cd system/core
             patch -p1 < ../../device/lenovo/k5fpr/patches/system_core_liblog.patch
             patch -p1 < ../../device/lenovo/k5fpr/patches/system_core_libnetutils.patch
