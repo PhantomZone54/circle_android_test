@@ -8,7 +8,7 @@ jobs:
       - run:
           name: Setup the Environment using Scripts by Akhilnarang
           command: |
-            sudo apt install apt-transport-https -qy
+            sudo apt update -qqy && sudo apt install apt-transport-https -qy
             mkdir /home/circleci/project/Landroid && cd /home/circleci/project/Landroid
             LATEST_MAKE_VERSION="4.2.1"
             sudo apt update -qqy
