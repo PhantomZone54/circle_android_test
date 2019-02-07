@@ -32,12 +32,12 @@ jobs:
             rm "${ZIP_NAME}"
             printf '\nexport ANDROID_HOME=~/Android/Sdk' >> ~/.bashrc
             source ~/.bashrc
-            yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses
-            y | "${ANDROID_HOME}"/tools/bin/sdkmanager --update > /dev/null
-            y | "${ANDROID_HOME}"/tools/bin/sdkmanager build-tools;27.0.3
-            y | "${ANDROID_HOME}"/tools/bin/sdkmanager platform-tools
-            y | "${ANDROID_HOME}"/tools/bin/sdkmanager tools
-            y | "${ANDROID_HOME}"/tools/bin/sdkmanager platforms;android-27
+            # yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses
+            # y | "${ANDROID_HOME}"/tools/bin/sdkmanager --update > /dev/null
+            # y | "${ANDROID_HOME}"/tools/bin/sdkmanager build-tools;27.0.3
+            # y | "${ANDROID_HOME}"/tools/bin/sdkmanager platform-tools
+            # y | "${ANDROID_HOME}"/tools/bin/sdkmanager tools
+            # y | "${ANDROID_HOME}"/tools/bin/sdkmanager platforms;android-27
             sudo apt install whiptail wput -qqy
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 5m
