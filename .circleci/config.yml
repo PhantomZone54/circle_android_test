@@ -57,13 +57,12 @@ jobs:
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             # Device sources
-            sudo mkdir -p {kernel,device,vendor}/lenovo/k5fpr
-            sudo chown -R circleci /home/circleci/project/Landroid/*
-            git clone https://github.com/SahilSonar/android_kernel_lenovo_k5fpr kernel/lenovo/k5fpr -b lineage-15.1-dev
-            git clone https://github.com/SahilSonar/android_device_lenovo_k5fpr device/lenovo/k5fpr -b oreo
-            git clone https://github.com/SahilSonar/android_vendor_lenovo_k5fpr vendor/lenovo/k5fpr -b lineage-15.1-dev
+            sudo chown -R circleci *
+            sudo git clone https://github.com/SahilSonar/android_kernel_lenovo_k5fpr kernel/lenovo/k5fpr -b lineage-15.1-dev
+            sudo git clone https://github.com/SahilSonar/android_device_lenovo_k5fpr device/lenovo/k5fpr -b oreo
+            sudo git clone https://github.com/SahilSonar/android_vendor_lenovo_k5fpr vendor/lenovo/k5fpr -b lineage-15.1-dev
             # Own the files, again
-            sudo chown -R circleci /home/circleci/project/Landroid/*
+            sudo chown -R circleci *
             # Patch
             cd device/lenovo/k5fpr/patches
             cd system/core
