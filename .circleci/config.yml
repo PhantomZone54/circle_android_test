@@ -86,7 +86,7 @@ jobs:
             sleep 2
             echo "The PATH ENV is --" && echo $PATH && echo ""
             # yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses
-            # yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --update
+            "${ANDROID_HOME}"/tools/bin/sdkmanager --update
             "${ANDROID_HOME}"/tools/bin/sdkmanager build-tools;27.0.3
             "${ANDROID_HOME}"/tools/bin/sdkmanager platform-tools
             "${ANDROID_HOME}"/tools/bin/sdkmanager tools
