@@ -59,7 +59,7 @@ jobs:
             # Device sources
             sudo chown -R circleci *
             sudo git clone https://github.com/SahilSonar/android_kernel_lenovo_k5fpr kernel/lenovo/k5fpr -b lineage-15.1-dev
-            sudo git clone https://github.com/SahilSonar/android_device_lenovo_k5fpr device/lenovo/k5fpr -b oreo
+            sudo git clone https://github.com/SahilSonar/android_device_lenovo_k5fpr device/lenovo/k5fpr -b oreo-mr1
             sudo git clone https://github.com/SahilSonar/android_vendor_lenovo_k5fpr vendor/lenovo/k5fpr -b lineage-15.1-dev
             # Own the files, again
             sudo chown -R circleci *
