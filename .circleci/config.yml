@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/android:api-27-ndk-r17b
+      - image: circleci/android:api-27-ndk
     steps:
       - checkout
       - run:
@@ -16,10 +16,11 @@ jobs:
             bash setup/android_build_env.sh
             cd ../../ && rm -rf toolz
             sudo apt install whiptail wput -qqy
-            # Script to setup the Android SDK on a Linux System
+            # Script to setup the New Android SDK on a Linux System
             TOOLS_URL="https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip"
             ZIP_NAME=$(printf '%s\n' "${TOOLS_URL##*/}")
-            mkdir -p ~/Android/Sdk/; cd ~/Android/Sdk || exit 1
+            sudo mkdir -p /opt/android/sdk || echo "'/opt/android/sdk' dir is already there"
+            cd /opt/android/sdk
             if axel -a -n 10 "${TOOLS_URL}"; then
                 unzip -qqo "${ZIP_NAME}"
             else
@@ -28,19 +29,22 @@ jobs:
             # Create repositories.cfg if not present
             if [ ! -f ~/.android/repositories.cfg ] ; then
                 touch ~/.android/repositories.cfg
+                echo '### User Sources for Android SDK Manager' > ~/.android/repositories.cfg
             fi
             rm "${ZIP_NAME}"
-            printf '\nexport ANDROID_HOME=~/Android/Sdk' >> ~/.bashrc
+            echo "ANDROID_HOME ENV is --" && echo ${ANDROID_HOME}
             source ~/.bashrc
-            # yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses
-            # y | "${ANDROID_HOME}"/tools/bin/sdkmanager --update > /dev/null
-            # y | "${ANDROID_HOME}"/tools/bin/sdkmanager build-tools;27.0.3
-            # y | "${ANDROID_HOME}"/tools/bin/sdkmanager platform-tools
-            # y | "${ANDROID_HOME}"/tools/bin/sdkmanager tools
-            # y | "${ANDROID_HOME}"/tools/bin/sdkmanager platforms;android-27
+            sleep 2
+            echo "The PATH ENV is --" && echo $PATH && echo ""
+            yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses
+            yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --update
+            "${ANDROID_HOME}"/tools/bin/sdkmanager build-tools;26.0.3 build-tools;27.0.3 build-tools;28.0.3
+            "${ANDROID_HOME}"/tools/bin/sdkmanager platform-tools
+            "${ANDROID_HOME}"/tools/bin/sdkmanager tools
+            "${ANDROID_HOME}"/tools/bin/sdkmanager platforms;android-27
             sudo apt install whiptail wput -qqy
             echo ">>> Initial Disc Space is" && df -hlT
-          no_output_timeout: 5m
+          no_output_timeout: 8m
       - run:
           name: Git Config and Get LineageOS
           command: |
@@ -56,7 +60,7 @@ jobs:
             # List directories
             ls -la .
             # Device sources
-            sudo chown -R circleci *
+            sudo chown -R circleci:circleci *
       - run:
           name: Get Device Sources
           command: |
@@ -65,9 +69,9 @@ jobs:
             sudo git clone https://github.com/SahilSonar/android_device_lenovo_k5fpr device/lenovo/k5fpr -b oreo-mr1
             sudo git clone https://github.com/SahilSonar/android_vendor_lenovo_k5fpr vendor/lenovo/k5fpr -b lineage-15.1-dev
             # Own the files, again
-            sudo chown -R circleci kernel
-            sudo chown -R circleci device
-            sudo chown -R circleci vendor
+            sudo chown -R circleci:circleci kernel
+            sudo chown -R circleci:circleci device
+            sudo chown -R circleci:circleci vendor
             # Patch
             ls -la device/lenovo/k5fpr/patches/
             cd system/core
