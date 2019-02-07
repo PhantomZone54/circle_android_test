@@ -8,14 +8,64 @@ jobs:
       - run:
           name: Setup the Environment using Scripts by Akhilnarang
           command: |
-            sudo apt -qy update && sudo apt install apt-transport-https -qy
+            sudo apt install apt-transport-https -qy
             mkdir /home/circleci/project/Landroid && cd /home/circleci/project/Landroid
-            mkdir toolz && cd toolz
-            git clone https://github.com/akhilnarang/scripts
-            cd scripts
-            bash setup/android_build_env.sh
-            cd ../../ && rm -rf toolz
-            sudo apt install whiptail wput -qqy
+            LATEST_MAKE_VERSION="4.2.1"
+            sudo apt update -qqy
+            sudo apt install -qqy git-core libesd0-dev libwxgtk2.8-dev curl schedtool binutils-static figlet libesd0-dev python gnupg flex bison gperf libsdl1.2-dev squashfs-tools build-essential zip unzip libncurses5-dev zlib1g-dev openjdk-8-jre openjdk-8-jdk \
+            pngcrush schedtool libxml2 libxml2-utils xsltproc lzop libc6-dev g++-multilib lib32z1-dev lib32ncurses5-dev gcc-multilib liblz4-* pngquant \
+            ncurses-dev texinfo gcc gperf patch libtool automake g++ gawk subversion expat libexpat1-dev python-all-dev bc libcloog-isl-dev libcap-dev \
+            autoconf libgmp-dev pkg-config libmpc-dev libmpfr-dev lzma* liblzma* w3m adb fastboot maven ncftp htop imagemagick \
+            libssl-dev clang cmake axel re2c whiptail wput
+            if [[ ! "$(command -v adb)" == "" ]]; then
+                echo -e "Setting up udev rules for adb!"
+                sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/M0Rf30/android-udev-rules/master/51-android.rules
+                sudo chmod 644 /etc/udev/rules.d/51-android.rules
+                sudo chown root /etc/udev/rules.d/51-android.rules
+                sudo systemctl restart udev
+                adb kill-server
+                sudo killall adb
+            fi
+            if [[ "$(command -v make)" ]]; then
+                makeversion="$(make -v | head -1 | awk '{print $3}')"
+                if [[ "${makeversion}" != "${LATEST_MAKE_VERSION}" ]]; then
+                    echo "Installing make ${LATEST_MAKE_VERSION} instead of ${makeversion}"
+                    cd /tmp || exit 1
+                    axel -a -n 10 https://ftp.gnu.org/gnu/make/make-"${LATEST_MAKE_VERSION}".tar.gz
+                    tar xzf /tmp/make-"${LATEST_MAKE_VERSION}".tar.gz
+                    cd /tmp/make-"${LATEST_MAKE_VERSION}" || exit 1
+                    ./configure
+                    curl https://raw.githubusercontent.com/akhilnarang/scripts/master/patches/make-glibc_alloc_fix.patch | patch -p1
+                    bash ./build.sh
+                    sudo install ./make /usr/local/bin/make
+                fi
+            cd /tmp || exit 1
+            rm -rf /tmp/make-"${LATEST_MAKE_VERSION}"{,.tar.gz}
+            fi
+            echo "Installing repo"
+            sudo curl --create-dirs -L -o /usr/local/bin/repo -O -L https://github.com/akhilnarang/repo/raw/master/repo
+            sudo chmod a+x /usr/local/bin/repo
+            echo "Installing CCache"
+            cd /tmp || exit 1
+            git clone git://github.com/akhilnarang/ccache.git
+            cd ccache || exit 1
+            ./autogen.sh
+            ./configure --disable-man
+            make -j"$(nproc)"
+            sudo make install
+            export 'USE_CCACHE=1' >> ~/.bashrc
+            export 'CCACHE_COMPRESS=1' >> ~/.bashrc
+            . ~/.bashrc
+            /usr/local/bin/ccache -M 50G
+            /usr/local/bin/ccache -C
+            echo "Installing Ninja"
+            cd /tmp || exit 1
+            git clone git://github.com/akhilnarang/ninja.git
+            cd ninja || exit 1
+            ./configure.py --bootstrap
+            sudo install ./ninja /usr/local/bin/ninja
+            cd /tmp || exit 1
+            rm -rf ccache ninja
             # Script to setup the New Android SDK on a Linux System
             TOOLS_URL="https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip"
             ZIP_NAME=$(printf '%s\n' "${TOOLS_URL##*/}")
@@ -38,11 +88,10 @@ jobs:
             echo "The PATH ENV is --" && echo $PATH && echo ""
             yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses
             yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --update
-            "${ANDROID_HOME}"/tools/bin/sdkmanager build-tools;26.0.3 build-tools;27.0.3 build-tools;28.0.3
+            "${ANDROID_HOME}"/tools/bin/sdkmanager build-tools;27.0.3
             "${ANDROID_HOME}"/tools/bin/sdkmanager platform-tools
             "${ANDROID_HOME}"/tools/bin/sdkmanager tools
             "${ANDROID_HOME}"/tools/bin/sdkmanager platforms;android-27
-            sudo apt install whiptail wput -qqy
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 8m
       - run:
@@ -98,15 +147,6 @@ jobs:
             echo ">>> Primary Disc Space is now --- " && df -hlT
             ls -la .
           no_output_timeout: 8m
-      - run:
-          name: Set 50 Gigs of CCache
-          command: |
-            cd /home/circleci/project/Landroid
-            export 'USE_CCACHE=1' >> ~/.bashrc
-            export 'CCACHE_COMPRESS=1' >> ~/.bashrc
-            . ~/.bashrc
-            /usr/local/bin/ccache -M 50G
-            /usr/local/bin/ccache -C
       - run:
           name: Build the LineageOS
           command: |
