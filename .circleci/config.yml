@@ -51,7 +51,7 @@ jobs:
             export 'USE_CCACHE=1' >> ~/.bashrc
             export 'CCACHE_COMPRESS=1' >> ~/.bashrc
             . ~/.bashrc
-            /usr/local/bin/ccache -M 50G
+            /usr/local/bin/ccache -M 30G
             /usr/local/bin/ccache -C
             echo "Installing Ninja"
             cd /tmp || exit 1
@@ -121,31 +121,11 @@ jobs:
             sudo chown -fR circleci:circleci kernel
             sudo chown -fR circleci:circleci device
             sudo chown -fR circleci:circleci vendor
-            # New Patch
+            # Apply Patchs
             cd device/lenovo/k5fpr/patches/
-            rm -f *
-            wget -q 'https://transfer.sh/get/4WENq/001_android_system_core.patch'
-            wget -q 'https://transfer.sh/get/7KJVr/002_android_frameworks_native.patch'
-            wget -q 'https://transfer.sh/get/14dGBS/003_android_frameworks_base.patch'
-            wget -q 'https://transfer.sh/get/8lalA/004_android_hardware_ril.patch'
-            wget -q 'https://transfer.sh/get/R3We5/005_android_hardware_interfaces.patch'
+            chmod +x *.sh
+            bash apply.sh
             cd ../../../..
-            # Apply patches
-            cd system/core
-            patch -p1 < ../../device/lenovo/k5fpr/patches/001_android_system_core.patch
-            cd ../..
-            cd frameworks/native
-            patch -p1 < ../../device/lenovo/k5fpr/patches/002_android_frameworks_native.patch
-            cd ../..
-            cd frameworks/base
-            patch -p1 < ../../device/lenovo/k5fpr/patches/003_android_frameworks_base.patch
-            cd ../..
-            cd hardware/ril
-            patch -p1 < ../../device/lenovo/k5fpr/patches/004_android_hardware_ril.patch
-            cd ../..
-            cd hardware/interfaces
-            patch -p1 < ../../device/lenovo/k5fpr/patches/005_android_hardware_interfaces.patch
-            cd ../..
             # Show How much space is taken Again
             echo ">>> How much space taken by checked-out files?" && du -sh /home/circleci/project/Landroid
             echo ">>> Primary Disc Space is now --- " && df -hlT
@@ -155,6 +135,7 @@ jobs:
           name: Build the LineageOS
           command: |
             cd /home/circleci/project/Landroid
+            export ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx2G"
             echo "Environment Setup"
             . build/envsetup.sh > /dev/null
             echo "Lunching --- "
