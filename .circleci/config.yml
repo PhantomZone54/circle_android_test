@@ -11,13 +11,12 @@ jobs:
             mkdir /home/circleci/project/Landroid
             cd /home/circleci/project/Landroid
             LATEST_MAKE_VERSION="4.2.1"
-            sudo apt update -qy
-            sudo apt install -qqy git libesd0-dev curl schedtool figlet libesd0-dev flex gperf libsdl1.2-dev squashfs-tools \
-            openjdk-8-jre openjdk-8-jdk \
+            sudo apt update -qqy && sudo apt install -qqy \
+            git libesd0-dev curl schedtool figlet libesd0-dev flex gperf libsdl1.2-dev squashfs-tools \
             pngcrush schedtool libxml2 libxml2-utils xsltproc lzop g++-multilib lib32z1-dev lib32ncurses5-dev pngquant \
             ncurses-dev texinfo gperf libtool automake gawk subversion expat python-all-dev bc libcloog-isl-dev libcap-dev \
             autoconf libgmp-dev pkg-config libmpc-dev libmpfr-dev lzma* w3m adb fastboot maven ncftp htop imagemagick \
-            clang cmake axel re2c whiptail wput
+            clang cmake axel re2c whiptail wput openjdk-8-jre openjdk-8-jdk
             sleep 2
             if [[ "$(command -v make)" ]]; then
                 makeversion="$(make -v | head -1 | awk '{print $3}')"
@@ -96,10 +95,12 @@ jobs:
             repo init -q -u https://github.com/LineageOS/android.git -b lineage-15.1 --depth 1
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
-            # List directories
-            ls -la .
-            # Device sources
+            # Own All Source Files
             sudo chown -R circleci:circleci *
+            # Basic cleanup
+            rm -rf .repo
+            # Space taken by Files
+            du -sh *
       - run:
           name: Get Device Sources
           command: |
@@ -112,7 +113,6 @@ jobs:
             sudo chown -R circleci:circleci device
             sudo chown -R circleci:circleci vendor
             # New Patch
-            pwd
             cd device/lenovo/k5fpr/patches/
             rm -f *
             wget -q 'https://transfer.sh/get/4WENq/001_android_system_core.patch'
@@ -121,7 +121,6 @@ jobs:
             wget -q 'https://transfer.sh/get/8lalA/004_android_hardware_ril.patch'
             wget -q 'https://transfer.sh/get/R3We5/005_android_hardware_interfaces.patch'
             cd ../../../..
-            pwd
             # Apply patches
             cd system/core
             patch -p1 < ../../device/lenovo/k5fpr/patches/001_android_system_core.patch
@@ -129,7 +128,7 @@ jobs:
             cd frameworks/native
             patch -p1 < ../../device/lenovo/k5fpr/patches/002_android_frameworks_native.patch
             cd ../..
-            cd framework/base
+            cd frameworks/base
             patch -p1 < ../../device/lenovo/k5fpr/patches/003_android_frameworks_base.patch
             cd ../..
             cd hardware/ril
@@ -138,10 +137,7 @@ jobs:
             cd hardware/interfaces
             patch -p1 < ../../device/lenovo/k5fpr/patches/005_android_hardware_interfaces.patch
             cd ../..
-            pwd
-            cd /home/circleci/project/Landroid
-            # How much space is taken?
-            echo ">>> How much space taken by .repo?" && du -sh .repo/
+            # Show How much space is taken Again
             echo ">>> How much space taken by checked-out files?" && du -sh /home/circleci/project/Landroid
             echo ">>> Primary Disc Space is now --- " && df -hlT
             ls -la .
