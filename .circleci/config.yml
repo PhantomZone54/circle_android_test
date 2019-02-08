@@ -101,9 +101,11 @@ jobs:
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             # Own All Source Files
-            sudo chown -R circleci:circleci *
+            sudo chown -fR circleci:circleci *
+            sudo chown -fR circleci:circleci .repo
             # Basic cleanup
-            rm -rf .repo
+            echo "The size of Repo is --" && du -sh .repo
+            rm -rf .repo/
             # Space taken by Files
             du -sh *
       - run:
@@ -114,9 +116,9 @@ jobs:
             sudo git clone https://github.com/SahilSonar/android_device_lenovo_k5fpr device/lenovo/k5fpr -b oreo-mr1
             sudo git clone https://github.com/SahilSonar/android_vendor_lenovo_k5fpr vendor/lenovo/k5fpr -b lineage-15.1-dev
             # Own the files, again
-            sudo chown -R circleci:circleci kernel
-            sudo chown -R circleci:circleci device
-            sudo chown -R circleci:circleci vendor
+            sudo chown -fR circleci:circleci kernel
+            sudo chown -fR circleci:circleci device
+            sudo chown -fR circleci:circleci vendor
             # New Patch
             cd device/lenovo/k5fpr/patches/
             rm -f *
