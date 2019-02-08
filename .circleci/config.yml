@@ -13,9 +13,9 @@ jobs:
             LATEST_MAKE_VERSION="4.2.1"
             sudo apt update -qy && sleep 2
             sudo apt install -qqy gcc g++ g++-multilib gcc-multilib libssl-dev openjdk-8-jre openjdk-8-jdk \
-            git curl libesd0-dev schedtool figlet libesd0-dev flex gperf libsdl1.2-dev squashfs-tools libwxgtk2.8-dev \
+            git curl libesd0-dev schedtool figlet libesd0-dev flex gperf libsdl1.2-dev squashfs-tools \
             pngcrush schedtool libxml2 libxml2-utils xsltproc lzop g++-multilib lib32z1-dev lib32ncurses5-dev pngquant \
-            ncurses-dev texinfo gperf libtool automake gawk subversion expat python python3.6 python-all-dev bc libcloog-isl-dev libcap-dev \
+            ncurses-dev texinfo gperf libtool automake gawk subversion expat python python-all-dev bc libcloog-isl-dev libcap-dev \
             autoconf libgmp-dev pkg-config libmpc-dev libmpfr-dev lzma* w3m adb fastboot maven ncftp htop imagemagick \
             clang cmake axel re2c whiptail wput
             sleep 2
