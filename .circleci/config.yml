@@ -78,7 +78,7 @@ jobs:
             source ~/.bashrc
             sleep 2
             echo "The PATH ENV is --" && echo $PATH && echo ""
-            # yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses
+            yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses
             # "${ANDROID_HOME}"/tools/bin/sdkmanager --update
             "${ANDROID_HOME}"/tools/bin/sdkmanager 'build-tools;27.0.3' 'platform-tools' 'tools' 'platforms;android-27' || echo "sdkman installs failed!"
             echo ">>> Initial Disc Space is" && df -hlT
