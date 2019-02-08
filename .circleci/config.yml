@@ -96,7 +96,7 @@ jobs:
             git config --global user.name $GitHubName
             git config --global color.ui true
             # Initialize the repo data fetching
-            repo init -q -u https://github.com/LineageOS/android.git -b lineage-15.1 --depth 1
+            repo init -q -u https://github.com/LineageOS/android.git -b lineage-15.1
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
             sleep 2
