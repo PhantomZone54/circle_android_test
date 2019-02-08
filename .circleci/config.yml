@@ -8,7 +8,8 @@ jobs:
       - run:
           name: Setup the Environment using Scripts by Akhilnarang
           command: |
-            mkdir /home/circleci/project/Landroid && cd /home/circleci/project/Landroid
+            mkdir /home/circleci/project/Landroid
+            cd /home/circleci/project/Landroid
             LATEST_MAKE_VERSION="4.2.1"
             sudo apt update -qy
             sudo apt install -qqy git libesd0-dev curl schedtool figlet libesd0-dev flex gperf libsdl1.2-dev squashfs-tools \
@@ -110,25 +111,34 @@ jobs:
             sudo chown -R circleci:circleci kernel
             sudo chown -R circleci:circleci device
             sudo chown -R circleci:circleci vendor
-            # Patch
-            ls -la device/lenovo/k5fpr/patches/
+            # New Patch
+            pwd
+            cd device/lenovo/k5fpr/patches/
+            rm -f *
+            wget -q 'https://transfer.sh/get/4WENq/001_android_system_core.patch'
+            wget -q 'https://transfer.sh/get/7KJVr/002_android_frameworks_native.patch'
+            wget -q 'https://transfer.sh/get/14dGBS/003_android_frameworks_base.patch'
+            wget -q 'https://transfer.sh/get/8lalA/004_android_hardware_ril.patch'
+            wget -q 'https://transfer.sh/get/R3We5/005_android_hardware_interfaces.patch'
+            cd ../../../..
+            pwd
+            # Apply patches
             cd system/core
-            patch -p1 < ../../device/lenovo/k5fpr/patches/system_core_liblog.patch
-            patch -p1 < ../../device/lenovo/k5fpr/patches/system_core_libnetutils.patch
-            patch -p1 < ../../device/lenovo/k5fpr/patches/system_core_software_gatekeeper.patch
+            patch -p1 < ../../device/lenovo/k5fpr/patches/001_android_system_core.patch
             cd ../..
             cd frameworks/native
-            patch -p1 < ../../device/lenovo/k5fpr/patches/frameworks_native_ui.patch
+            patch -p1 < ../../device/lenovo/k5fpr/patches/002_android_frameworks_native.patch
             cd ../..
             cd framework/base
-            patch -p1 < ../../device/lenovo/k5fpr/patches/frameworks_base_core_whitelist_proc_ged.patch
+            patch -p1 < ../../device/lenovo/k5fpr/patches/003_android_frameworks_base.patch
             cd ../..
             cd hardware/ril
-            patch -p1 < ../../device/lenovo/k5fpr/patches/hardware_ril_provides_rild.patch
+            patch -p1 < ../../device/lenovo/k5fpr/patches/004_android_hardware_ril.patch
             cd ../..
             cd hardware/interfaces
-            patch -p1 < ../../device/lenovo/k5fpr/patches/camera_device_1_0.patch
+            patch -p1 < ../../device/lenovo/k5fpr/patches/005_android_hardware_interfaces.patch
             cd ../..
+            pwd
             cd /home/circleci/project/Landroid
             # How much space is taken?
             echo ">>> How much space taken by .repo?" && du -sh .repo/
