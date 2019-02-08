@@ -24,7 +24,7 @@ jobs:
                 if [[ "${makeversion}" != "${LATEST_MAKE_VERSION}" ]]; then
                     echo "Installing make ${LATEST_MAKE_VERSION} instead of ${makeversion}"
                     cd /tmp || exit 1
-                    axel -a -n 10 https://ftp.gnu.org/gnu/make/make-"${LATEST_MAKE_VERSION}".tar.gz
+                    axel -k -a -n 10 https://ftp.gnu.org/gnu/make/make-"${LATEST_MAKE_VERSION}".tar.gz
                     tar xzf /tmp/make-"${LATEST_MAKE_VERSION}".tar.gz
                     cd /tmp/make-"${LATEST_MAKE_VERSION}" || exit 1
                     ./configure
