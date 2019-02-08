@@ -11,12 +11,17 @@ jobs:
             mkdir /home/circleci/project/Landroid
             cd /home/circleci/project/Landroid
             LATEST_MAKE_VERSION="4.2.1"
-            sudo apt update -qqy && sudo apt install -qqy \
-            git libesd0-dev curl schedtool figlet libesd0-dev flex gperf libsdl1.2-dev squashfs-tools \
+            sudo dpkg --add-architecture i386
+            sudo apt-get update -qqy && sudo apt-get dist-upgrade -qqy
+            sleep 5
+            sudo apt update -qqy
+            sleep 2
+            sudo apt install -qqy openjdk-8-jre openjdk-8-jdk \
+            libesd0-dev curl schedtool figlet libesd0-dev flex gperf libsdl1.2-dev squashfs-tools \
             pngcrush schedtool libxml2 libxml2-utils xsltproc lzop g++-multilib lib32z1-dev lib32ncurses5-dev pngquant \
             ncurses-dev texinfo gperf libtool automake gawk subversion expat python-all-dev bc libcloog-isl-dev libcap-dev \
             autoconf libgmp-dev pkg-config libmpc-dev libmpfr-dev lzma* w3m adb fastboot maven ncftp htop imagemagick \
-            clang cmake axel re2c whiptail wput openjdk-8-jre openjdk-8-jdk
+            clang cmake axel re2c whiptail wput
             sleep 2
             if [[ "$(command -v make)" ]]; then
                 makeversion="$(make -v | head -1 | awk '{print $3}')"
