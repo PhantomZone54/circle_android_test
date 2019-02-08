@@ -11,13 +11,10 @@ jobs:
             mkdir /home/circleci/project/Landroid
             cd /home/circleci/project/Landroid
             LATEST_MAKE_VERSION="4.2.1"
-            sudo dpkg --add-architecture i386
-            sudo apt-get update -qqy && sudo apt-get dist-upgrade -qqy
-            sleep 5
-            sudo apt update -qqy
+            sudo apt update -qy
             sleep 2
             sudo apt install -qqy openjdk-8-jre openjdk-8-jdk \
-            libesd0-dev curl schedtool figlet libesd0-dev flex gperf libsdl1.2-dev squashfs-tools \
+            git curl libesd0-dev schedtool figlet libesd0-dev flex gperf libsdl1.2-dev squashfs-tools \
             pngcrush schedtool libxml2 libxml2-utils xsltproc lzop g++-multilib lib32z1-dev lib32ncurses5-dev pngquant \
             ncurses-dev texinfo gperf libtool automake gawk subversion expat python-all-dev bc libcloog-isl-dev libcap-dev \
             autoconf libgmp-dev pkg-config libmpc-dev libmpfr-dev lzma* w3m adb fastboot maven ncftp htop imagemagick \
@@ -63,6 +60,7 @@ jobs:
             sudo install ./ninja /usr/local/bin/ninja
             cd /tmp || exit 1
             rm -rf ccache ninja
+            sleep 2
             # Script to setup the New Android SDK on a Linux System
             TOOLS_URL="https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip"
             ZIP_NAME=$(printf '%s\n' "${TOOLS_URL##*/}")
@@ -86,6 +84,7 @@ jobs:
             echo "The PATH ENV is --" && echo $PATH && echo ""
             yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --licenses && yes | "${ANDROID_HOME}"/tools/bin/sdkmanager --update
             "${ANDROID_HOME}"/tools/bin/sdkmanager 'build-tools;27.0.3' 'platform-tools' 'tools' 'platforms;android-27' || echo "sdkman installs failed!"
+            sleep 2
             echo ">>> Initial Disc Space is" && df -hlT
           no_output_timeout: 8m
       - run:
@@ -100,9 +99,11 @@ jobs:
             repo init -q -u https://github.com/LineageOS/android.git -b lineage-15.1 --depth 1
             # Sync it up!
             sudo repo sync -c -f -q --force-sync --no-clone-bundle --no-tags -j36
+            sleep 2
             # Own All Source Files
             sudo chown -fR circleci:circleci *
             sudo chown -fR circleci:circleci .repo
+            sleep 2
             # Basic cleanup
             echo "The size of Repo is --" && du -sh .repo
             rm -rf .repo/
@@ -160,6 +161,7 @@ jobs:
             sleep 2
             echo "Brunching, Umm.. --- "
             brunch lineage_k5fpr-userdebug
+            sleep 2
           no_output_timeout: 15m
       - run:
           name: Upload Resulting Files
