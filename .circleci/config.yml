@@ -17,7 +17,7 @@ jobs:
             pngcrush schedtool libxml2 libxml2-utils xsltproc lzop lib32z1-dev lib32ncurses5-dev pngquant \
             ncurses-dev texinfo gperf libtool automake gawk subversion expat python-all-dev bc libcloog-isl-dev libcap-dev \
             autoconf libgmp-dev pkg-config libmpc-dev libmpfr-dev lzma* w3m adb fastboot maven ncftp htop imagemagick \
-            clang cmake axel re2c whiptail wput
+            clang cmake axel re2c whiptail wput pxz
             sleep 5
             if [[ "$(command -v make)" ]]; then
                 makeversion="$(make -v | head -1 | awk '{print $3}')"
@@ -109,6 +109,30 @@ jobs:
             # Space taken by Files
             du -sh *
       - run:
+          name: Upload the LineageOS Source
+          command: |
+            cd /home/circleci/project/Landroid
+            DDF=$(du -sh -BM . | awk '{print $1}' | sed 's/M//')
+            export XZ_OPT=-6
+            mkdir ../comp
+            if [ $DDF -gt 8192 ]; then
+              echo -e "Compressing and Making 3GB parts Because of Huge Data Amount \nBe Patient..."
+              time tar -I pxz -cf - * | split -b 3072M - ../comp/LineageOS-151-norepo-$(date +%Y%m%d).tar.xz.
+              echo -en "Final Compressed size of the consolidated checked-out files is ---  "
+              du -sh ../parts
+            else
+              time tar -I pxz -cf ../comp/LineageOS-151-norepo-$(date +%Y%m%d).tar.xz *
+            fi
+            md5sum ../comp/LineageOS-151-norepo* > ../comp/LineageOS-151-norepo-$(date +%Y%m%d).md5sum
+            cat ../comp/LineageOS-151-norepo-$(date +%Y%m%d).md5sum
+            # Make a Compressed file list for future reference
+            ls -AhxcRis . ../comp/LineageOS-151-norepo-$(date +%Y%m%d).file.log
+            tar -I pxz -cf ../comp/LineageOS-151-norepo-$(date +%Y%m%d).filelist.tar.xz ../comp/LineageOS-151-norepo-*.file.log  && rm -f *.file.log
+            echo "Upload to AFH FTP"
+            cd ../comp
+            for file in LineageOS*; do wput $file ftp://"$FTPUser":"$FTPPass"@"$FTPHost"//LineageOS-151-full-NoRepo/ ; done
+          no_output_timeout: 8m
+      - run:
           name: Get Device Sources
           command: |
             cd /home/circleci/project/Landroid
@@ -122,7 +146,7 @@ jobs:
             # Apply Patchs
             cd device/lenovo/k5fpr/patches/
             chmod +x *.sh
-            bash apply.sh
+            bash install.sh
             cd ../../../..
             # Show How much space is taken Again
             echo ">>> How much space taken by checked-out files?" && du -sh /home/circleci/project/Landroid
