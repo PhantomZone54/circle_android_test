@@ -112,9 +112,9 @@ jobs:
           name: Get Device Sources
           command: |
             cd /home/circleci/project/Landroid
-            sudo git clone https://github.com/SahilSonar/android_kernel_lenovo_k5fpr kernel/lenovo/k5fpr -b oreo-mr1 #lineage-15.1-dev
-            sudo git clone https://github.com/SahilSonar/android_device_lenovo_k5fpr device/lenovo/k5fpr -b oreo-mr1
-            sudo git clone https://github.com/SahilSonar/android_vendor_lenovo_k5fpr vendor/lenovo/k5fpr -b oreo-mr1 #lineage-15.1-dev
+            sudo git clone https://github.com/mohancm/android_kernel_lenovo_A7010a48 kernel/lenovo/k5fpr -b LineageOS-15.0
+            sudo git clone https://github.com/SahilSonar/android_device_lenovo_k5fpr device/lenovo/k5fpr -b lineage-15.1
+            sudo git clone https://github.com/SahilSonar/android_vendor_lenovo_k5fpr vendor/lenovo/k5fpr -b lineage-15.1
             # Own the files, again
             sudo chown -fR circleci:circleci kernel
             sudo chown -fR circleci:circleci device
@@ -142,7 +142,7 @@ jobs:
             echo "Brunching, Umm.. --- "
             brunch lineage_k5fpr-userdebug
             sleep 2
-          no_output_timeout: 15m
+          no_output_timeout: 25m
       - run:
           name: Upload Resulting Files
           command: |
